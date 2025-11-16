@@ -20,7 +20,7 @@ static const uint16_t SEN5X_CMD_RHT_ACCELERATION_MODE = 0x60F7; //not for SEN66 
 static const uint16_t SEN5X_CMD_START_CLEANING_FAN = 0x5607;
 static const uint16_t SEN5X_CMD_START_MEASUREMENTS = 0x0021;
 static const uint16_t SEN5X_CMD_START_MEASUREMENTS_RHT_ONLY = 0x0037; //not used
-static const uint16_t SEN5X_CMD_STOP_MEASUREMENTS = 0x3f86;
+static const uint16_t SEN5X_CMD_STOP_MEASUREMENTS = 0x0104;
 static const uint16_t SEN5X_CMD_TEMPERATURE_COMPENSATION = 0x60B2;
 static const uint16_t SEN5X_CMD_VOC_ALGORITHM_STATE = 0x6181;
 static const uint16_t SEN5X_CMD_VOC_ALGORITHM_TUNING = 0x60D0;
@@ -376,6 +376,28 @@ bool SEN5XComponent::write_temperature_compensation_(const TemperatureCompensati
   if (!write_command(SEN5X_CMD_TEMPERATURE_COMPENSATION, params, 3)) {
     ESP_LOGE(TAG, "set temperature_compensation failed. Err=%d", this->last_error_);
     return false;
+  }
+  return true;
+}
+
+bool SEN5XComponent::start_measurement() {
+  if (!write_command(SEN5X_CMD_START_MEASUREMENTS)) {
+    this->status_set_warning();
+    ESP_LOGE(TAG, "write error start measurement (%d)", this->last_error_);
+    return false;
+  } else {
+    ESP_LOGD(TAG, "Measurement started");
+  }
+  return true;
+}
+
+bool SEN5XComponent::stop_measurement() {
+  if (!write_command(SEN5X_CMD_STOP_MEASUREMENTS)) {
+    this->status_set_warning();
+    ESP_LOGE(TAG, "write error stop measurement (%d)", this->last_error_);
+    return false;
+  } else {
+    ESP_LOGD(TAG, "Measurement stopped");
   }
   return true;
 }

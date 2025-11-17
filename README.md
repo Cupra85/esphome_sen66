@@ -15,7 +15,7 @@ available per model (PMx, T, RH, VOC, NOx, CO₂, – see table). Works with **A
 | SEN66  | ✅ | ✅   | ✅  | ✅  | ✅  |      |
 | SEN68  | ✅ | ✅   | ✅  | ✅  |     | ✅   |
 
-## Wiring (ESP32‑C6 example)
+## Wiring (ESP32‑S3 example)
 | Pin  | Wire | ESP32‑S3 | Note |
 |-----:|------|----------|------|
 | GND  | Black| GND      | Ground |
@@ -23,7 +23,7 @@ available per model (PMx, T, RH, VOC, NOx, CO₂, – see table). Works with **A
 | SDA  | Blue | GPIO10    | I²C data |
 | SCL  | Yellow | GPIO11  | I²C clock |
 
-## Quick start (ESP‑IDF)
+## Quick start (Arduino)
 ```yaml
 esphome:
   name: sen6x_idf

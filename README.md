@@ -100,7 +100,7 @@ I²C-Adresse: `0x6B` (fest eingestellt)
 4. Auf den ESP32 flashen (OTA oder USB)
 
 📎 Die vollständige Konfiguration findest du hier:  
-`/examples/sen66_example.yaml`
+`/examples/esp32_sen66.yaml`
 
 ---
 
@@ -162,13 +162,6 @@ Diese Firmware:
 ✔ nutzt sie nach Neustart wieder
 
 🔔 → **VOC wird dadurch extrem stabil und genau.**
-
----
-
-## 🧾 Lizenz & Beitrag
-
-🛠 Offen für Erweiterungen, Pull Requests willkommen!  
-📎 Füge gerne eigene Dashboards, Automation-Beispiele oder CO₂-Kalibrierungsideen hinzu.
 
 ---
 

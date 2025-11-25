@@ -60,6 +60,12 @@ class SEN5XComponent : public PollingComponent, public sensirion_common::Sensiri
   void set_pm_10_0_sensor(sensor::Sensor *pm_10_0) { pm_10_0_sensor_ = pm_10_0; }
   void set_pm_0_10_sensor(sensor::Sensor *pm_0_10) { pm_0_10_sensor_ = pm_0_10; }
 
+  void set_nc_0_5_sensor(sensor::Sensor *s) { nc_0_5_sensor_ = s; }
+  void set_nc_1_0_sensor(sensor::Sensor *s) { nc_1_0_sensor_ = s; }
+  void set_nc_2_5_sensor(sensor::Sensor *s) { nc_2_5_sensor_ = s; }
+  void set_nc_4_0_sensor(sensor::Sensor *s) { nc_4_0_sensor_ = s; }
+  void set_nc_10_0_sensor(sensor::Sensor *s) { nc_10_0_sensor_ = s; }
+
   void set_voc_sensor(sensor::Sensor *voc_sensor) { voc_sensor_ = voc_sensor; }
   void set_nox_sensor(sensor::Sensor *nox_sensor) { nox_sensor_ = nox_sensor; }
   void set_humidity_sensor(sensor::Sensor *humidity_sensor) { humidity_sensor_ = humidity_sensor; }
@@ -101,6 +107,9 @@ class SEN5XComponent : public PollingComponent, public sensirion_common::Sensiri
   bool stop_measurement();
   bool start_fan_cleaning();
 
+  bool read_number_concentration(uint16_t *nc05, uint16_t *nc10,
+                               uint16_t *nc25, uint16_t *nc40,
+                               uint16_t *nc100);
 
   std::string get_product_name() const { return product_name_; }
   uint16_t get_firmware_version() const { return firmware_version_; }
@@ -109,6 +118,7 @@ class SEN5XComponent : public PollingComponent, public sensirion_common::Sensiri
     sprintf(buf, "%02d.%02d.%02d", serial_number_[0], serial_number_[1], serial_number_[2]);
     return std::string(buf);
   }
+  bool is_measuring() const { return this->is_measuring_; }
 
  protected:
   bool write_tuning_parameters_(uint16_t i2c_command, const GasTuning &tuning);
@@ -128,6 +138,12 @@ class SEN5XComponent : public PollingComponent, public sensirion_common::Sensiri
   sensor::Sensor *nox_sensor_{nullptr};
   sensor::Sensor *co2_sensor_{nullptr};
 
+  sensor::Sensor *nc_0_5_sensor_{nullptr};
+  sensor::Sensor *nc_1_0_sensor_{nullptr};
+  sensor::Sensor *nc_2_5_sensor_{nullptr};
+  sensor::Sensor *nc_4_0_sensor_{nullptr};
+  sensor::Sensor *nc_10_0_sensor_{nullptr};
+
   std::string product_name_;
   uint8_t serial_number_[4];
   uint16_t firmware_version_;
@@ -138,6 +154,9 @@ class SEN5XComponent : public PollingComponent, public sensirion_common::Sensiri
   optional<GasTuning> voc_tuning_params_;
   optional<GasTuning> nox_tuning_params_;
   optional<TemperatureCompensation> temperature_compensation_;
+
+  bool is_measuring_ = true;   // Sensor läuft beim Boot immer → Default true
+
 };
 
 }  // namespace sen6x

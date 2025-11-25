@@ -13,9 +13,9 @@ Der SEN66 erfasst gleich **mehrere Luftgüte-Aspekte gleichzeitig**:
 
 | Messwert | Bedeutung |
 |----------|-----------|
-| 🌫 PM1–PM10 | Feinstaub in µg/m³ (z.B. Kerzen, Kochen, Rauch, Straßenverkehr) |
+| 🌫 Feinstaub PM1–PM10 | Feinstaub in µg/m³ (z.B. Kerzen, Kochen, Rauch, Straßenverkehr) |
 | 🔬 Number Concentration (p/cm³) | Anzahl einzelner Partikel in der Luft |
-| 🫁 VOC IAQ | Luftqualität durch organische Gase (Haushaltschemikalien, Düfte, Kochen usw.) |
+| 🫁 VOC Index / IAQ | Luftqualität durch organische Gase (Haushaltschemikalien, Düfte, Kochen usw.) |
 | 🔥 NOx Index | Belastung durch Stickoxide (Kochen mit Gas, Verkehr, Rauchen) |
 | 🥽 CO₂ (ppm) | Luftqualität durch Atmung/Besucherzahl |
 | 🌡 Temperatur | für Thermik + VOC/NOx Berechnung |

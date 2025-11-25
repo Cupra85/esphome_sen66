@@ -25,7 +25,7 @@ Der SEN66 erfasst gleich **mehrere Luftgüte-Aspekte gleichzeitig**:
 
 ---
 
-## 🛠️ Funktionen dieser Firmware
+## 🛠️ Funktionen dieser Repo
 
 ✔️ vollständige Unterstützung aller SEN66-Sensorwerte  
 ✔️ **Number Concentration** in Partikel/cm³  

@@ -1,0 +1,322 @@
+esphome:
+  name: sen66
+  friendly_name: Sen66   # Dein Projektname hier eingeben
+  on_boot:
+    - priority: -100
+      then:
+        - lambda: |-
+            id(sen66).set_temperature_compensation(
+              id(temperature_offset_input).state,
+              0,  // normalized_offset_slope
+              0   // time_constant
+            );
+
+external_components:
+  - source:
+      type: git
+      url: https://github.com/Cupra85/esphome_sen6x
+      ref: main
+    components: sen6x
+
+esp32:
+  board: esp32-s3-devkitc-1   # Dein Board hier eingeben
+  framework:
+    type: arduino
+
+logger:
+api:
+ota:
+
+globals:
+  - id: sen66_measuring
+    type: bool
+    initial_value: "true"
+    restore_value: no
+
+i2c: 
+  sda: GPIO10   # Dein sda GPIO hier angeben
+  scl: GPIO11   # Dein scl GPIO hier angeben
+  scan: true
+  id: bus_a
+
+sensor:
+  - platform: sen6x
+    id: sen66
+    pm_1_0:
+      name: "PM 0.3-1 µm"
+      id: sen66_pm10
+      accuracy_decimals: 1
+      icon: mdi:chemical-weapon
+    pm_2_5:
+      name: "PM 1-2.5 µm"
+      id: sen66_pm25
+      accuracy_decimals: 1
+      icon: mdi:chemical-weapon
+    pm_4_0:
+      name: "PM 2.5-4 µm"
+      id: sen66_pm40
+      accuracy_decimals: 1
+      icon: mdi:chemical-weapon
+    pm_10_0:
+      name: "PM 4-10 µm"
+      id: sen66_pm100
+      accuracy_decimals: 1 
+      icon: mdi:chemical-weapon
+
+    number_concentration_0_5:
+      name: "Partikel ≤0.5 µm"
+      id: sen66_nc05
+      accuracy_decimals: 0
+      unit_of_measurement: "p/cm³"
+      icon: mdi:counter
+    number_concentration_1_0:
+      name: "Partikel ≤1 µm"
+      id: sen66_nc10
+      accuracy_decimals: 0
+      unit_of_measurement: "p/cm³"
+      icon: mdi:counter
+    number_concentration_2_5:
+      name: "Partikel ≤2.5 µm"
+      id: sen66_nc25
+      accuracy_decimals: 0
+      unit_of_measurement: "p/cm³"
+      icon: mdi:counter
+    number_concentration_4_0:
+      name: "Partikel ≤4 µm"
+      id: sen66_nc40
+      accuracy_decimals: 0
+      unit_of_measurement: "p/cm³"
+      icon: mdi:counter
+    number_concentration_10_0:
+      name: "Partikel ≤10 µm"
+      id: sen66_nc100
+      accuracy_decimals: 0
+      unit_of_measurement: "p/cm³"
+      icon: mdi:counter
+
+    co2:
+      name: "CO₂"
+      id: sen66_co2
+      accuracy_decimals: 0
+      icon: mdi:air-filter
+    temperature:
+      name: "Temperatur"
+      accuracy_decimals: 1
+      id: sen66_temperature_top
+      icon: mdi:thermometer
+    humidity:
+      name: "Luftfeuchtigkeit"
+      accuracy_decimals: 0
+      id: sen66_humidity
+      icon: mdi:water-percent
+    voc:
+      name: "VOC Index"
+      id: sen66_voc
+      algorithm_tuning:
+        index_offset: 100
+        learning_time_offset_hours: 12
+        learning_time_gain_hours: 12
+        gating_max_duration_minutes: 180
+        std_initial: 50
+        gain_factor: 230
+      icon: mdi:air-filter
+      filters:
+        - sliding_window_moving_average:
+            window_size: 9
+            send_every: 1
+    nox:
+      name: "NOx Index"
+      id: sen66_nox
+      algorithm_tuning:
+        index_offset: 100
+        learning_time_offset_hours: 12
+        learning_time_gain_hours: 12
+        gating_max_duration_minutes: 180
+        std_initial: 50
+        gain_factor: 230
+      icon: mdi:air-filter
+      filters:
+        - sliding_window_moving_average:
+            window_size: 9
+            send_every: 1
+    store_baseline: true
+    update_interval: 10s
+
+  - platform: template
+    name: "Ambiente Temperature"
+    id: sen66_ambient_temperature
+    unit_of_measurement: "°C"
+    accuracy_decimals: 1
+    icon: mdi:home-thermometer
+    update_interval: 10s
+    lambda: |-
+      return id(sen66_temperature_top).state + id(temperature_offset_input).state;
+
+  - platform: template
+    name: "Ambiente Luftfeuchtigkeit"
+    id: sen66_ambient_humidity
+    unit_of_measurement: "%"
+    accuracy_decimals: 0
+    icon: mdi:home-percent
+    update_interval: 10s
+    lambda: |-
+      return id(sen66_humidity).state + id(humidity_offset_input).state;
+
+  - platform: template
+    name: "PM gesammt"
+    id: sen66_pm010
+    unit_of_measurement: "µg/m³"
+    accuracy_decimals: 1
+    icon: mdi:chemical-weapon
+    update_interval: 10s
+    lambda: |-
+      return id(sen66_pm10).state + id(sen66_pm25).state + id(sen66_pm40).state + id(sen66_pm100).state;
+    
+  - platform: template  
+    name: "Total VOC (Mølhave)"
+    id: sen66_tvoc
+    unit_of_measurement: "mg/m³"
+    accuracy_decimals: 2
+    icon: mdi:air-filter
+    update_interval: 10s
+    lambda: |-
+      if (isnan(id(sen66_voc).state)) {
+        return NAN;
+      }
+      float voc_index = id(sen66_voc).state;
+      return ((log(501 - voc_index) - 6.24) * (-996.94)) * 0.001;
+
+  - platform: template
+    name: "IAQ Index"
+    id: iaq_index
+    unit_of_measurement: "IAQ"
+    accuracy_decimals: 0
+    lambda: |-
+      float iaq = 100.0; // Start value for good air quality
+
+      // CO2 contribution (400-1500 ppm is optimal, >2000 ppm is bad)
+      float co2 = id(sen66_co2).state;
+      if (!isnan(co2)) {
+        if (co2 > 1500) {
+          iaq += (co2 - 1500) / 5.0; // Higher CO2 increases IAQ (worse air quality)
+        }
+      }
+
+      // TVOC contribution (0-0.25 mg/m³ is good, >1.0 mg/m³ is bad)
+      float tvoc = id(sen66_tvoc).state;
+      if (!isnan(tvoc)) {
+        if (tvoc > 0.25) {
+          iaq += (tvoc - 0.25) * 100.0; // Higher VOC levels increase IAQ (worse air quality)
+        }
+      }
+
+      // Particulate matter
+      float pm10 = id(sen66_pm10).state;
+      float pm25 = id(sen66_pm25).state;
+      float pm40 = id(sen66_pm40).state;
+      float pm100 = id(sen66_pm100).state;
+      if (!isnan(pm10)) {
+        if (pm10 > 5) {
+          iaq += (pm10 - 5) * 2.0; // Higher PM2.5 increases IAQ
+        }
+      }
+      if (!isnan(pm25)) {
+        if (pm25 > 10) {
+          iaq += (pm25 - 10) * 2.0; // Higher PM2.5 increases IAQ
+        }
+      }
+      if (!isnan(pm40)) {
+        if (pm40 > 10) {
+          iaq += (pm40 - 10) * 2.0; // Higher PM4.0 increases IAQ
+        }
+      }
+      if (!isnan(pm100)) {
+        if (pm100 > 20) {
+          iaq += (pm100 - 20) * 2.0; // Higher PM10 increases IAQ
+        }
+      }
+
+      // Humidity contribution (40-60% is optimal)
+      float humidity = id(sen66_humidity).state;
+      if (!isnan(humidity)) {
+        if (humidity < 30 || humidity > 70) {
+          //iaq += 10; // Extreme humidity adds to IAQ (worse air quality)
+        }
+      }
+
+      // Temperature contribution (20-24°C is optimal)
+      float temp = id(sen66_temperature_top).state;
+      if (!isnan(temp)) {
+        if (temp < 16 || temp > 28) {
+          //iaq += 10; // Extreme temperatures add to IAQ (worse air quality)
+        }
+      }
+
+      // Limit IAQ value to range 100-400
+      if (iaq > 400) iaq = 400;
+      if (iaq < 100) iaq = 100;
+
+      return iaq;
+    filters:
+      - sliding_window_moving_average:
+          window_size: 5
+          send_every: 1
+
+number:
+  - platform: template
+    name: "Temperatur Offset (°C)"
+    id: temperature_offset_input
+    optimistic: true
+    min_value: -10.0
+    max_value: 10.0
+    step: 0.05
+    initial_value: -4.5 
+    restore_value: true
+    mode: BOX   # Hier BOX/SLIDER/AUTO angeben
+
+  - platform: template
+    name: "Luftfeuchtigkeit Offset (%)"
+    id: humidity_offset_input
+    optimistic: true
+    min_value: -20.0
+    max_value: 20.0
+    step: 1
+    initial_value: 12.0
+    restore_value: true
+    mode: BOX   # Hier BOX/SLIDER/AUTO angeben
+
+button:
+  - platform: template
+    name: "SEN66 Autoreinigung"
+    icon: mdi:fan-auto
+    on_press:
+      then:
+        - sen6x.stop_measurement: sen66
+        - delay: 1.5s
+        - sen6x.start_fan_cleaning: sen66
+        - delay: 30s
+        - sen6x.start_measurement: sen66
+
+switch:
+  - platform: template
+    name: "SEN66 Messung"
+    lambda: |-
+      return id(sen66).is_measuring();
+    turn_on_action:
+      - lambda: |-
+          id(sen66).start_measurement();
+    turn_off_action:
+      - lambda: |-
+          id(sen66).stop_measurement();
+
+text_sensor:
+  - platform: template
+    name: "SEN66 Status"
+    id: sen6x_status
+    update_interval: 1s
+    lambda: |-
+      if (id(sen66).is_measuring()) {
+        return std::string("running");
+      } else {
+        return std::string("stopped");
+      }

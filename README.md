@@ -27,12 +27,11 @@ Der SEN66 erfasst gleich **mehrere Luftgüte-Aspekte gleichzeitig**:
 
 ## 🖼 Darstellung in ESPHome
 
-### 📊 Einzelne Messwerte (Sensor)
-### 🕹️ Steuerung (Lüfterreinigung & Messung starten/stoppen)
+### 📊 Einzelne Messwerte (Sensor) 🕹️ Steuerung (Lüfterreinigung & Messung starten/stoppen)
 
 <p align="center">
-  <img src="./examples/Sensoren.jpeg" alt="Sensoren" width="20%">
-  <img src="./examples/Steuerelemente.jpeg" alt="Steuerelemente" width="20%">
+  <img src="./examples/Sensoren.jpeg" alt="Sensoren" width="30%">
+  <img src="./examples/Steuerelemente.jpeg" alt="Steuerelemente" width="30%">
 </p>
 
 

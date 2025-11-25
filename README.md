@@ -1,28 +1,3 @@
-# ESPHome Component for Sensirion SEN66
-
-Local external component for ESPHome (>= 2025.10.x) to read **Sensirion SEN66** air‑quality sensors via I²C.
-Supports **only SEN66** and publishes all signals
-available per model (PMx, T, RH, VOC, NOx, CO₂, – see table). Works with **Arduino**.
-
-> This is a *external component* incl. autoclean button.
-
-## Model capability matrix
-| Model  | PM | RH/T | VOC | NOx | CO₂ | HCHO |
-|:------:|:--:|:----:|:---:|:---:|:---:|:----:|
-| SEN60  | ✅ |      |     |     |     |      |
-| SEN63C | ✅ | ✅   |     |     | ✅  |      |
-| SEN65  | ✅ | ✅   | ✅  | ✅  |     |      |
-| SEN66  | ✅ | ✅   | ✅  | ✅  | ✅  |      |
-| SEN68  | ✅ | ✅   | ✅  | ✅  |     | ✅   |
-
-## Wiring (ESP32‑S3 example)
-| Pin  | Wire | ESP32‑S3 | Note |
-|-----:|------|----------|------|
-| GND  | Black| GND      | Ground |
-| VDD  | Red  | 3V3      | 3.3 V |
-| SDA  | Blue | GPIO10    | I²C data |
-| SCL  | Yellow | GPIO11  | I²C clock |
-
 # 🌱 Luftqualität messen mit dem Sensirion SEN66 + ESPHome
 
 Dieses Projekt bringt den **SEN66 Luftqualitätssensor** von Sensirion vollständig in ESPHome und damit in **Home Assistant**.  

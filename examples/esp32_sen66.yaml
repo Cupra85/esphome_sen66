@@ -34,8 +34,8 @@ globals:
     restore_value: no
 
 i2c: 
-  sda: GPIO10   # Dein sda GPIO hier angeben
-  scl: GPIO11   # Dein scl GPIO hier angeben
+  sda: GPIO20   # Dein sda GPIO hier angeben
+  scl: GPIO21   # Dein scl GPIO hier angeben
   scan: true
   id: bus_a
 
